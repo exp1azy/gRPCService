@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "GrpcService";
+
+package greet;
+
+service Greeter {
+  rpc GetUsers (GetUsersRequest) returns (GetUsersReply);
+
+  rpc CreateNewUser (CreateUserRequest) returns (CreateUserReply);
+}
+
+message GetUsersRequest {}
+
+message CreateUserRequest {
+	string username = 1;
+	string password = 2;
+}
+
+message GetUsersReply {
+  repeated User users = 1;
+}
+
+message CreateUserReply {}
+
+message User {
+  string id = 1;
+  string username = 2;
+  string password = 3;
+}
