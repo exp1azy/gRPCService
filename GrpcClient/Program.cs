@@ -84,9 +84,6 @@ namespace GrpcClient
                     {
                         var requestedUser = _users.Skip(index - 1).First();
 
-                        string? newUsername = null;
-                        string? newPassword = null;
-
                         Console.WriteLine("\n------------------------------------------\n");
 
                         Console.WriteLine("Изменить имя? (y/n)");
@@ -96,7 +93,17 @@ namespace GrpcClient
                             Console.WriteLine("\n------------------------------------------\n");
 
                             Console.WriteLine("Введите новое имя: ");
-                            newUsername = Console.ReadLine();
+                            var newUsername = Console.ReadLine();
+
+                            bool result = false;
+
+                            if (!string.IsNullOrWhiteSpace(newUsername))
+                                result = await UpdateUsernameAsync(requestedUser.Id, newUsername);
+
+                            if (result)
+                                Console.WriteLine("Имя пользователя успешно обновлено!");
+                            else
+                                Console.WriteLine("Не удалось обновить имя пользователя");
                         }
 
                         Console.WriteLine("\n------------------------------------------\n");
@@ -108,19 +115,18 @@ namespace GrpcClient
                             Console.WriteLine("\n------------------------------------------\n");
 
                             Console.WriteLine("Введите новый пароль: ");
-                            newPassword = Console.ReadLine();
+                            var newPassword = Console.ReadLine();
+
+                            bool result = false;
+
+                            if (!string.IsNullOrWhiteSpace(newPassword))
+                                result = await UpdatePasswordAsync(requestedUser.Id, newPassword);
+
+                            if (result)
+                                Console.WriteLine("Пароль пользователя успешно обновлен!");
+                            else
+                                Console.WriteLine("Не удалось обновить пароль пользователя");
                         }
-
-                        var result = await UpdateUserAsync(
-                            requestedUser.Id, 
-                            newUsername == null ? requestedUser.Username : newUsername, 
-                            newPassword == null ? requestedUser.Password : newPassword
-                        );
-
-                        if (result)
-                            Console.WriteLine($"Пользователь обновлен!");
-                        else
-                            Console.WriteLine("Не удалось обновить пользователя");
                     }
                     else if (!parsed)
                     {
@@ -181,9 +187,16 @@ namespace GrpcClient
             return reply.Result;
         }
 
-        static async Task<bool> UpdateUserAsync(string id, string username, string password)
+        static async Task<bool> UpdateUsernameAsync(string id, string username)
         {
-            var reply = await _client.UpdateUserAsync(new UpdateUserRequest { Id = id, Username = username, Password = password });
+            var reply = await _client.UpdateUserAsync(new UpdateUserRequest { Id = id, Username = username });
+
+            return reply.Result;
+        }
+
+        static async Task<bool> UpdatePasswordAsync(string id, string password)
+        {
+            var reply = await _client.UpdateUserAsync(new UpdateUserRequest { Id = id, Password = password });
 
             return reply.Result;
         }
